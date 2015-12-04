@@ -1,3 +1,8 @@
+## This fork:
+
+* adds `outputRoot` to address relative path problems locating external sources
+* removes the default setting for `sourceRoot`
+
 ## gulp-sourcemaps  [![NPM version][npm-image]][npm-url] [![build status][travis-image]][travis-url] [![Test coverage][coveralls-image]][coveralls-url]
 
 ### Usage
@@ -124,6 +129,44 @@ gulp.src(['src/test.js', 'src/testdir/test2.js'], { base: 'src' })
   By default the source maps include the source code. Pass `false` to use the original files.
 
   Including the content is the recommended way, because it "just works". When setting this to `false` you have to host the source files and set the correct `sourceRoot`.
+
+- `outputRoot`
+
+  Define a sibling folder to the source files where source maps are located. This should be used to ensure
+  that the `sources` array has the correct relative path to the source files whenever the sources are not
+  located in the same folder as the maps. For example in a structure like this:
+
+  ```javascript
+  src/
+    index.js
+    utils
+        helper.js
+
+  dist/
+    index.js
+    index.js.map
+    utils
+       helper.js
+       helper.js.map
+  ```
+
+configuring `"outputRoot": "dist"` will result in the following maps:
+
+index.js
+
+    {   ...
+        sources: ["../dist/index.js"]
+        ...
+    }
+
+helper.js
+
+    {   ...
+        sources: ["../../dist/index.js"]
+        ...
+    }
+
+Note that the same cannot be accomplished using `sourceRoot` because the deeper nesting of child folders would not be accounted for. Generally speakin `sourceRoot` cannot be used with relative paths. If your sources can be loaded from a URI, then you can use source root instead, but using `outputRoot` will ensure that sources can always be found relative to the map regardless of the file or URI system being used.
 
 - `sourceRoot`
 

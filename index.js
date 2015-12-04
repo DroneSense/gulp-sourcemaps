@@ -5,6 +5,7 @@ var path = require('path');
 var File = require('vinyl');
 var convert = require('convert-source-map');
 var stripBom = require('strip-bom');
+var pathUtil = require('./path-util')
 
 var PLUGIN_NAME = 'gulp-sourcemap';
 var urlRegex = /^(https?|webpack(-[^:]+)?):\/\//;
@@ -69,6 +70,7 @@ module.exports.init = function init(options) {
             return;
           }
           var absPath = path.resolve(sourcePath, source);
+          
           sourceMap.sources[i] = unixStylePath(path.relative(file.base, absPath));
 
           if (!sourceMap.sourcesContent[i]) {
@@ -133,6 +135,7 @@ module.exports.init = function init(options) {
  *
  */
 module.exports.write = function write(destPath, options) {
+  
   if (options === undefined && Object.prototype.toString.call(destPath) === '[object Object]') {
     options = destPath;
     destPath = undefined;
@@ -142,12 +145,17 @@ module.exports.write = function write(destPath, options) {
   // set defaults for options if unset
   if (options.includeContent === undefined)
     options.includeContent = true;
+  
   if (options.addComment === undefined)
     options.addComment = true;
 
   function sourceMapWrite(file, encoding, callback) {
     /*jshint validthis:true */
 
+    // file.base = path to source root, e.g. \code\src
+    // file.path = full path to file, e.g. \code\src\area\index.js
+    // file.relative = part after file.base, e.g. area\index.js
+    
     if (file.isNull() || !file.sourceMap) {
       this.push(file);
       return callback();
@@ -160,14 +168,24 @@ module.exports.write = function write(destPath, options) {
     var sourceMap = file.sourceMap;
     // fix paths if Windows style paths
     sourceMap.file = unixStylePath(file.relative);
+
+    // sources is most likely just the name of the file
+    
+    var sourceRootRelative = relativePathTo(unixStylePath(file.base), unixStylePath(file.path));
+    
     sourceMap.sources = sourceMap.sources.map(function(filePath) {
-      return unixStylePath(filePath);
+      var sourcePath = filePath;
+      if (options.outputRoot) {
+        sourcePath = path.join('../', sourceRootRelative, options.outputRoot, file.relative);
+      }
+      
+      return unixStylePath(sourcePath) 
     });
 
     if (typeof options.sourceRoot === 'function') {
       sourceMap.sourceRoot = options.sourceRoot(file);
     } else {
-      sourceMap.sourceRoot = options.sourceRoot;
+      sourceMap.sourceRoot = options.sourceRoot || undefined;
     }
 
     if (options.includeContent) {
@@ -176,7 +194,7 @@ module.exports.write = function write(destPath, options) {
       // load missing source content
       for (var i = 0; i < file.sourceMap.sources.length; i++) {
         if (!sourceMap.sourcesContent[i]) {
-          var sourcePath = path.resolve(sourceMap.sourceRoot || file.base, sourceMap.sources[i]);
+          var sourcePath = path.resolve(sourceMap.sourceFileRoot || file.base, sourceMap.sources[i]);
           try {
             if (options.debug)
               console.log(PLUGIN_NAME + '-write: No source content for "' + sourceMap.sources[i] + '". Loading from file.');
@@ -187,11 +205,7 @@ module.exports.write = function write(destPath, options) {
           }
         }
       }
-      if (sourceMap.sourceRoot === undefined) {
-        sourceMap.sourceRoot = '/source/';
-      } else if (sourceMap.sourceRoot === null) {
-        sourceMap.sourceRoot = undefined;
-      }
+    
     } else {
       delete sourceMap.sourcesContent;
     }
@@ -266,4 +280,8 @@ module.exports.write = function write(destPath, options) {
 
 function unixStylePath(filePath) {
   return filePath.split(path.sep).join('/');
+}
+
+function relativePathTo(target, source) {
+  return  pathUtil.relativePathTo(target, source);
 }
