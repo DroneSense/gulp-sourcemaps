@@ -419,22 +419,25 @@ test('write: should calculate relative path to source when #outputRoot is presen
     var file = makeFile();
 
     var cases = [{
-        outputRoot: 'dest',
+        desc: "deep",
+        outputPath: 'dest',
         base: '/root/src/',
         path: '/root/src/a/b/c/index.js',
-        expected: '../../../../dest/a/b/c/index.js'
+        expected: '../../../../src/a/b/c/index.js'
     },
     {
-        outputRoot: 'dest',
+        desc: "same folder",
+        outputPath: 'dest',
         base: '/src/',
         path: '/src/index.js',
-        expected: '../dest/index.js'
+        expected: '../src/index.js'
     },
     {
-        outputRoot: 'src/compiled',
+        desc: "subfolder",
+        outputPath: 'dest/compiled',
         base: '/src/',
         path: '/src/a/index.js',
-        expected: '../../src/compiled/a/index.js'
+        expected: '../../../src/a/index.js'
     }
     ]
 
@@ -443,14 +446,16 @@ test('write: should calculate relative path to source when #outputRoot is presen
 
         file.base = current.base;
         file.path = current.path;
+        file.file = 'index.js';
+
         var pipeline = sourcemaps.write(".", {
-            outputRoot: current.outputRoot
+            outputPath: current.outputPath
         });    
         pipeline
             .on('data', function(data) {
                 if (/index\.js\.map$/.test(data.path)) {
                     t.deepEqual(JSON.parse(data.contents.toString('utf-8')).sources, 
-                        [current.expected], 'should have same sources (case ' + caseNum + ')');
+                        [current.expected], 'sources relative path case: "' + current.desc + '"');
 
                     if (caseNum === cases.length-1) {
                         t.end();

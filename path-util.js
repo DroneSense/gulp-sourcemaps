@@ -1,6 +1,6 @@
 function relativePathTo(target, source) {
-  var sourceParts = source.split('/');
-  var targetParts = target.split('/');
+  var sourceParts = (source || '').split('/');
+  var targetParts = (target || '').split('/');
   var sLen = sourceParts.length;
   var tLen = targetParts.length;
   
