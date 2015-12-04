@@ -178,7 +178,8 @@ test('write: should write external map files', function(t) {
                     } else {
                         t.ok(data instanceof File, 'should pass a vinyl file through');
                         t.equal(data.path, path.join(__dirname, 'maps/helloworld.js.map'));
-                        t.deepEqual(JSON.parse(data.contents), sourceMap, 'should have the file\'s source map as content');
+                        t.deepEqual(JSON.parse(data.contents), sourceMap, 
+                            'should have the file\'s source map as content');
                     }
                 });
                 t.end();
@@ -399,7 +400,7 @@ test('write: should be able to fully control sourceMappingURL by the option sour
     var file = makeNestedFile();
     var pipeline = sourcemaps.write('../aaa/bbb/', {
       sourceMappingURL: function(file) {
-        return 'http://maps.example.com/' + file.relative + '.map';
+        return 'http://maps.example.com/' + file.relative.split(path.sep).join('/') + '.map';
       }
     });
     pipeline
@@ -412,4 +413,57 @@ test('write: should be able to fully control sourceMappingURL by the option sour
             }
         })
         .write(file);
+});
+
+test('write: should calculate relative path to source when #outputRoot is present', function(t) {
+    var file = makeFile();
+
+    var cases = [{
+        outputRoot: 'dest',
+        base: '/root/src/',
+        path: '/root/src/a/b/c/index.js',
+        expected: '../../../../dest/a/b/c/index.js'
+    },
+    {
+        outputRoot: 'dest',
+        base: '/src/',
+        path: '/src/index.js',
+        expected: '../dest/index.js'
+    },
+    {
+        outputRoot: 'src/compiled',
+        base: '/src/',
+        path: '/src/a/index.js',
+        expected: '../../src/compiled/a/index.js'
+    }
+    ]
+
+    function nextCase(caseNum) {
+        var current = cases[caseNum];
+
+        file.base = current.base;
+        file.path = current.path;
+        var pipeline = sourcemaps.write(".", {
+            outputRoot: current.outputRoot
+        });    
+        pipeline
+            .on('data', function(data) {
+                if (/index\.js\.map$/.test(data.path)) {
+                    t.deepEqual(JSON.parse(data.contents.toString('utf-8')).sources, 
+                        [current.expected], 'should have same sources (case ' + caseNum + ')');
+
+                    if (caseNum === cases.length-1) {
+                        t.end();
+                    } else {
+                        nextCase(caseNum+1);
+                    }
+                }
+            })
+            .write(file);
+    }
+
+    
+    nextCase(0);
+
+
 });

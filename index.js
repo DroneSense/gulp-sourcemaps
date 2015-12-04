@@ -182,10 +182,15 @@ module.exports.write = function write(destPath, options) {
       return unixStylePath(sourcePath) 
     });
 
+    var sourceRoot;
     if (typeof options.sourceRoot === 'function') {
-      sourceMap.sourceRoot = options.sourceRoot(file);
+      sourceRoot = options.sourceRoot(file);
     } else {
-      sourceMap.sourceRoot = options.sourceRoot || undefined;
+      sourceRoot = options.sourceRoot;
+    }
+    
+    if (typeof sourceRoot === 'string') {
+      sourceMap.sourceRoot = sourceRoot;
     }
 
     if (options.includeContent) {
