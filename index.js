@@ -169,17 +169,24 @@ module.exports.write = function write(destPath, options) {
     // fix paths if Windows style paths
     sourceMap.file = unixStylePath(file.relative);
 
-    //var sourceFolder = path.basename(file.base);
-    var outputPath = options.outputPath && 
-      unixStylePath(path.join(file.base, 
+    
+    var outputPath;
+    var sourceRootRelative;
+
+    if (options.outputPath) {
+      var sourceRoot = path.basename(file.base);
+
+      outputPath = unixStylePath(path.join(file.base, 
         "../",
-        options.outputPath || '', 
+        options.outputPath || sourceRoot, 
         file.relative));
 
-    var sourceRootRelative = relativePathTo(unixStylePath(path.dirname(file.path)), outputPath);
+      sourceRootRelative = relativePathTo(unixStylePath(path.dirname(file.path)), outputPath);  
+    }
     
     sourceMap.sources = sourceMap.sources.map(function(filePath) {
       var sourcePath = filePath;
+
       if (outputPath) {
         sourcePath = path.join(sourceRootRelative, path.basename(file.path));
       }

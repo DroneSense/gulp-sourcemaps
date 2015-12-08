@@ -10,13 +10,15 @@ var recordConsole = require('./consolerecorder.js');
 
 var sourceContent = fs.readFileSync(path.join(__dirname, 'assets/helloworld.js')).toString();
 
-function makeSourceMap() {
+function makeSourceMap(fileName) {
+    fileName = fileName || "helloworld.js";
+    
     return {
         version: 3,
-        file: 'helloworld.js',
+        file: fileName,
         names: [],
         mappings: '',
-        sources: [ 'helloworld.js' ],
+        sources: [ fileName ],
         sourcesContent: [ sourceContent ]
     };
 }
@@ -25,14 +27,20 @@ function base64JSON(object) {
     return 'data:application/json;base64,' + new Buffer(JSON.stringify(object)).toString('base64');
 }
 
-function makeFile() {
+function makeFile(opts) {
+    opts = opts || {};
+    opts.file = opts.file || 'helloworld.js';
+    opts.cwd = opts.cwd || __dirname;
+    opts.path = opts.path || path.join(opts.cwd, 'assets', opts.file);
+    opts.base = opts.base || path.join(opts.cwd, 'assets');
+
     var file = new File({
-        cwd: __dirname,
-        base: path.join(__dirname, 'assets'),
-        path: path.join(__dirname, 'assets', 'helloworld.js'),
+        cwd: opts.cwd,
+        base: opts.base,
+        path: opts.path,
         contents: new Buffer(sourceContent)
     });
-    file.sourceMap = makeSourceMap();
+    file.sourceMap = makeSourceMap(opts.file);
     return file;
 }
 
@@ -416,41 +424,68 @@ test('write: should be able to fully control sourceMappingURL by the option sour
 });
 
 test('write: should calculate relative path to source when #outputRoot is present', function(t) {
-    var file = makeFile();
 
-    var cases = [{
-        desc: "deep",
-        outputPath: 'dest',
-        base: '/root/src/',
-        path: '/root/src/a/b/c/index.js',
-        expected: '../../../../src/a/b/c/index.js'
-    },
+    var cases = [
     {
-        desc: "same folder",
+        desc: "parallel",
         outputPath: 'dest',
         base: '/src/',
         path: '/src/index.js',
         expected: '../src/index.js'
     },
     {
+        desc: "parallel deep",
+        outputPath: 'dest',
+        base: '/root/src/',
+        path: '/root/src/a/b/c/index.js',
+        expected: '../../../../src/a/b/c/index.js'
+    },
+    {
         desc: "subfolder",
+        outputPath: 'dest/sub',
+        base: '/test/src',
+        path: '/test/src/index.js',
+        expected: '../../src/index.js'
+    },
+    {
+        desc: "subfolder deep",
         outputPath: 'dest/compiled',
         base: '/src/',
+        path: '/src/a/b/c/index.js',
+        expected: '../../../../../src/a/b/c/index.js'
+    },
+    {
+        desc: "same folder - no output path specified",
+        outputPath: '',
+        base: '/src/',
         path: '/src/a/index.js',
-        expected: '../../../src/a/index.js'
+        expected: 'index.js'
+    },
+    {
+        desc: "same folder",
+        outputPath: 'src',
+        base: '/src/',
+        path: '/src/a/index.js',
+        expected: 'index.js'
     }
+    
     ]
 
     function nextCase(caseNum) {
         var current = cases[caseNum];
 
-        file.base = current.base;
-        file.path = current.path;
-        file.file = 'index.js';
+        console.log('starting case "' + current.desc + '": path = ' + current.path)
+        var file = makeFile({
+            cwd: "/",
+            file: "index.js",
+            path: current.path,
+            base: current.base
+        });
 
         var pipeline = sourcemaps.write(".", {
             outputPath: current.outputPath
         });    
+
         pipeline
             .on('data', function(data) {
                 if (/index\.js\.map$/.test(data.path)) {
