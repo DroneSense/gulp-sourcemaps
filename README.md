@@ -12,19 +12,19 @@ Inline source maps are embedded in the source file.
 
 Example:
 ```javascript
-var gulp = require('gulp');
-var plugin1 = require('gulp-plugin1');
-var plugin2 = require('gulp-plugin2');
-var sourcemaps = require('gulp-sourcemaps');
+    var gulp = require('gulp');
+    var plugin1 = require('gulp-plugin1');
+    var plugin2 = require('gulp-plugin2');
+    var sourcemaps = require('gulp-sourcemaps');
 
-gulp.task('javascript', function() {
-  gulp.src('src/**/*.js')
-    .pipe(sourcemaps.init())
-      .pipe(plugin1())
-      .pipe(plugin2())
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('dist'));
-});
+    gulp.task('javascript', function() {
+      gulp.src('src/**/*.js')
+        .pipe(sourcemaps.init())
+          .pipe(plugin1())
+          .pipe(plugin2())
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('dist'));
+    });
 ```
 
 All plugins between `sourcemaps.init()` and `sourcemaps.write()` need to have support for `gulp-sourcemaps`. You can find a list of such plugins in the [wiki](https://github.com/floridoo/gulp-sourcemaps/wiki/Plugins-with-gulp-sourcemaps-support).
@@ -36,19 +36,19 @@ To write external source map files, pass a path relative to the destination to `
 
 Example:
 ```javascript
-var gulp = require('gulp');
-var plugin1 = require('gulp-plugin1');
-var plugin2 = require('gulp-plugin2');
-var sourcemaps = require('gulp-sourcemaps');
+    var gulp = require('gulp');
+    var plugin1 = require('gulp-plugin1');
+    var plugin2 = require('gulp-plugin2');
+    var sourcemaps = require('gulp-sourcemaps');
 
-gulp.task('javascript', function() {
-  gulp.src('src/**/*.js')
-    .pipe(sourcemaps.init())
-      .pipe(plugin1())
-      .pipe(plugin2())
-    .pipe(sourcemaps.write('../maps'))
-    .pipe(gulp.dest('dist'));
-});
+    gulp.task('javascript', function() {
+      gulp.src('src/**/*.js')
+        .pipe(sourcemaps.init())
+          .pipe(plugin1())
+          .pipe(plugin2())
+        .pipe(sourcemaps.write('../maps'))
+        .pipe(gulp.dest('dist'));
+    });
 ```
 
 #### Load existing source maps
@@ -57,19 +57,19 @@ To load existing source maps, pass the option `loadMaps: true` to `sourcemaps.in
 
 Example:
 ```javascript
-var gulp = require('gulp');
-var plugin1 = require('gulp-plugin1');
-var plugin2 = require('gulp-plugin2');
-var sourcemaps = require('gulp-sourcemaps');
+    var gulp = require('gulp');
+    var plugin1 = require('gulp-plugin1');
+    var plugin2 = require('gulp-plugin2');
+    var sourcemaps = require('gulp-sourcemaps');
 
-gulp.task('javascript', function() {
-  gulp.src('src/**/*.js')
-    .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(plugin1())
-      .pipe(plugin2())
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('dist'));
-});
+    gulp.task('javascript', function() {
+      gulp.src('src/**/*.js')
+        .pipe(sourcemaps.init({loadMaps: true}))
+          .pipe(plugin1())
+          .pipe(plugin2())
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('dist'));
+    });
 ```
 
 #### Handle source files from different directories
@@ -78,19 +78,19 @@ Use the `base` option on `gulp.src` to make sure all files are relative to a com
 
 Example:
 ```javascript
-var gulp = require('gulp');
-var plugin1 = require('gulp-plugin1');
-var plugin2 = require('gulp-plugin2');
-var sourcemaps = require('gulp-sourcemaps');
+    var gulp = require('gulp');
+    var plugin1 = require('gulp-plugin1');
+    var plugin2 = require('gulp-plugin2');
+    var sourcemaps = require('gulp-sourcemaps');
 
-gulp.task('javascript', function() {
-gulp.src(['src/test.js', 'src/testdir/test2.js'], { base: 'src' })
-    .pipe(sourcemaps.init())
-      .pipe(plugin1())
-      .pipe(plugin2())
-    .pipe(sourcemaps.write('../maps'))
-    .pipe(gulp.dest('dist'));
-});
+    gulp.task('javascript', function() {
+    gulp.src(['src/test.js', 'src/testdir/test2.js'], { base: 'src' })
+        .pipe(sourcemaps.init())
+          .pipe(plugin1())
+          .pipe(plugin2())
+        .pipe(sourcemaps.write('../maps'))
+        .pipe(gulp.dest('dist'));
+    });
 ```
 
 
@@ -114,14 +114,14 @@ gulp.src(['src/test.js', 'src/testdir/test2.js'], { base: 'src' })
 
   Example:
   ```javascript
-  gulp.task('javascript', function() {
-    var stream = gulp.src('src/**/*.js')
-      .pipe(sourcemaps.init())
-        .pipe(plugin1())
-        .pipe(plugin2())
-      .pipe(sourcemaps.write('../maps', {addComment: false}))
-      .pipe(gulp.dest('dist'));
-  });
+    gulp.task('javascript', function() {
+      var stream = gulp.src('src/**/*.js')
+        .pipe(sourcemaps.init())
+          .pipe(plugin1())
+          .pipe(plugin2())
+        .pipe(sourcemaps.write('../maps', {addComment: false}))
+        .pipe(gulp.dest('dist'));
+    });
   ```
 
 - `includeContent`
@@ -137,20 +137,25 @@ gulp.src(['src/test.js', 'src/testdir/test2.js'], { base: 'src' })
   located in the same folder as the maps. For example in a structure like this:
 
   ```javascript
-  src/
-    index.js
-    utils
-        helper.js
+    src/
+      index.js
+      utils
+          helper.js
+    dist/
+      index.js
+      index.js.map
+      utils
+         helper.js
+         helper.js.map
 
-  dist/
-    index.js
-    index.js.map
-    utils
-       helper.js
-       helper.js.map
+    test/
+        src/
+          ...
+        dist/
+          ...
   ```
 
-configuring `"outputPath": "dist"` will result in the following maps:
+To compile the project code, configure `"outputPath": "dist"` to produce maps referencing the original source:
 
 index.js
 
@@ -166,7 +171,9 @@ helper.js
         ...
     }
 
-Note that the same cannot be accomplished using `sourceRoot` because the deeper nesting of child folders would not be accounted for. Generally speakin `sourceRoot` cannot be used with relative paths. If your sources can be loaded from a URI, then you can use source root instead, but using `outputPath` will ensure that sources can always be found relative to the map regardless of the file or URI system being used.
+Likewise, to compile the test code, if you are using `test/src` as the path to the source code, configure `"outputPath": "test/dist"` to generate correct references. The relative path should always be the same as the relative path to your output,
+
+Note that the same cannot be accomplished using `sourceRoot` because the deeper nesting of child folders would not be accounted for. Generally speaking `sourceRoot` cannot be used with relative paths and is primarily useful for setting a URL which can be rooted. In order to ensure that source files can be located from a relative path and do not depend on the file structure of the user, using `outputPath`.
 
 - `sourceRoot`
 
