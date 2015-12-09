@@ -428,13 +428,23 @@ test('write: should calculate relative path to source when #outputRoot is presen
     var cases = [
     {
         desc: "parallel",
+        cwd: '/',
         outputPath: 'dest',
         base: '/src/',
         path: '/src/index.js',
         expected: '../src/index.js'
     },
     {
+        desc: "parallel - nested targets from cwd",
+        cwd: '/usr/home',
+        outputPath: 'test/dist',
+        base: '/usr/home/test/src/',
+        path: '/usr/home/test/src/index.js',
+        expected: '../src/index.js'
+    },
+    {
         desc: "parallel deep",
+        cwd: '/root',
         outputPath: 'dest',
         base: '/root/src/',
         path: '/root/src/a/b/c/index.js',
@@ -442,6 +452,7 @@ test('write: should calculate relative path to source when #outputRoot is presen
     },
     {
         desc: "subfolder",
+        cwd: '/test',
         outputPath: 'dest/sub',
         base: '/test/src',
         path: '/test/src/index.js',
@@ -449,6 +460,7 @@ test('write: should calculate relative path to source when #outputRoot is presen
     },
     {
         desc: "subfolder deep",
+        cwd: '/',
         outputPath: 'dest/compiled',
         base: '/src/',
         path: '/src/a/b/c/index.js',
@@ -456,18 +468,13 @@ test('write: should calculate relative path to source when #outputRoot is presen
     },
     {
         desc: "same folder - no output path specified",
+        cwd: '/',
         outputPath: '',
         base: '/src/',
         path: '/src/a/index.js',
         expected: 'index.js'
     },
-    {
-        desc: "same folder",
-        outputPath: 'src',
-        base: '/src/',
-        path: '/src/a/index.js',
-        expected: 'index.js'
-    }
+   
     
     ]
 
@@ -476,7 +483,7 @@ test('write: should calculate relative path to source when #outputRoot is presen
 
         console.log('starting case "' + current.desc + '": path = ' + current.path)
         var file = makeFile({
-            cwd: "/",
+            cwd: current.cwd,
             file: "index.js",
             path: current.path,
             base: current.base

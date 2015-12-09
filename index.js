@@ -175,9 +175,8 @@ module.exports.write = function write(destPath, options) {
 
     if (options.outputPath) {
       var sourceRoot = path.basename(file.base);
-
-      outputPath = unixStylePath(path.join(file.base, 
-        "../",
+      
+      outputPath = unixStylePath(path.join(file.cwd, 
         options.outputPath || sourceRoot, 
         file.relative));
 
