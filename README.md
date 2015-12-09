@@ -155,25 +155,27 @@ Example:
           ...
   ```
 
-To compile the project code, configure `"outputPath": "dist"` to produce maps referencing the original source:
+  To compile the project code, configure `"outputPath": "dist"` to produce maps referencing the original source:
 
-index.js
+  index.js
+  ```javascript
+      {   ...
+          sources: ["../dist/index.js"]
+          ...
+      }
+  ```
 
-    {   ...
-        sources: ["../dist/index.js"]
-        ...
-    }
-
-helper.js
-
+  helper.js
+    ```javascript
     {   ...
         sources: ["../../dist/index.js"]
         ...
     }
+    ```
 
-Likewise, to compile the test code, if you are using `test/src` as the path to the source code, configure `"outputPath": "test/dist"` to generate correct references. The relative path should always be the same as the relative path to your output,
+  Likewise, to compile the test code, if you are using `test/src` as the path to the source code, configure `"outputPath": "test/dist"` to generate correct references. The relative path should always be the same as the relative path to your output,
 
-Note that the same cannot be accomplished using `sourceRoot` because the deeper nesting of child folders would not be accounted for. Generally speaking `sourceRoot` cannot be used with relative paths and is primarily useful for setting a URL which can be rooted. In order to ensure that source files can be located from a relative path and do not depend on the file structure of the user, using `outputPath`.
+  Note that the same cannot be accomplished using `sourceRoot` because the deeper nesting of child folders would not be accounted for. Generally speaking `sourceRoot` cannot be used with relative paths and is primarily useful for setting a URL which can be rooted. In order to ensure that source files can be located from a relative path and do not depend on the file structure of the user, using `outputPath`.
 
 - `sourceRoot`
 
