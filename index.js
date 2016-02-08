@@ -170,23 +170,23 @@ module.exports.write = function write(destPath, options) {
     sourceMap.file = unixStylePath(file.relative);
 
     
-    var outputPath;
+    var destPath;
     var sourceRootRelative;
 
-    if (options.outputPath) {
+    if (options.destPath) {
       var sourceRoot = path.basename(file.base);
       
-      outputPath = unixStylePath(path.join(file.cwd, 
-        options.outputPath || sourceRoot, 
+      destPath = unixStylePath(path.join(file.cwd, 
+        options.destPath || sourceRoot, 
         file.relative));
 
-      sourceRootRelative = relativePathTo(unixStylePath(path.dirname(file.path)), outputPath);
+      sourceRootRelative = relativePathTo(unixStylePath(path.dirname(file.path)), destPath);
     }
     
     sourceMap.sources = sourceMap.sources.map(function(filePath) {
       var sourcePath = filePath;
 
-      if (outputPath) {
+      if (destPath) {
         sourcePath = path.join(sourceRootRelative, path.basename(file.path));
       }
       

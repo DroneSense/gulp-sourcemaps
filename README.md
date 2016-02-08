@@ -1,6 +1,6 @@
 ## This fork:
 
-* adds `outputPath` to address relative path problems locating external sources
+* adds `destPath` to address relative path problems locating external sources
 * removes the default setting for `sourceRoot`
 
 ## gulp-sourcemaps  [![NPM version][npm-image]][npm-url] [![build status][travis-image]][travis-url] [![Test coverage][coveralls-image]][coveralls-url]
@@ -130,7 +130,7 @@ Example:
 
   Including the content is the recommended way, because it "just works". When setting this to `false` you have to host the source files and set the correct `sourceRoot`.
 
-- `outputPath`
+- `destPath`
 
   Define a sibling folder to the source file root where source maps will be written. This should be used to ensure
   that the `sources` array has the correct relative path to the source files whenever the sources are not
