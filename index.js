@@ -134,11 +134,11 @@ module.exports.init = function init(options) {
  * @param options options to change the way the source map is written
  *
  */
-module.exports.write = function write(destPath, options) {
+module.exports.write = function write(outputPath, options) {
   
-  if (options === undefined && Object.prototype.toString.call(destPath) === '[object Object]') {
-    options = destPath;
-    destPath = undefined;
+  if (options === undefined && Object.prototype.toString.call(outputPath) === '[object Object]') {
+    options = outputPath;
+    outputPath = undefined;
   }
   options = options || {};
 
@@ -241,12 +241,12 @@ module.exports.write = function write(destPath, options) {
     }
 
     var comment, sourceMappingURLPrefix;
-    if (!destPath) {
+    if (!outputPath) {
       // encode source map into comment
       var base64Map = new Buffer(JSON.stringify(sourceMap)).toString('base64');
       comment = commentFormatter('data:application/json;base64,' + base64Map);
     } else {
-      var sourceMapPath = path.join(file.base, destPath, file.relative) + '.map';
+      var sourceMapPath = path.join(file.base, outputPath, file.relative) + '.map';
       // add new source map file to stream
       var sourceMapFile = new File({
         cwd: file.cwd,
