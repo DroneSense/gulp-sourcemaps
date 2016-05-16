@@ -423,6 +423,23 @@ test('write: should be able to fully control sourceMappingURL by the option sour
         .write(file);
 });
 
+test('write: should allow to change sources', function(t) {
+    var file = makeFile();
+    var pipeline = sourcemaps.write({mapSources: function(sourcePath) {
+        return '../src/' + sourcePath;
+    }});
+    pipeline
+        .on('data', function(data) {
+            t.deepEqual(data.sourceMap.sources, ['../src/helloworld.js'], 'should have the correct sources');
+            t.end();
+        })
+        .on('error', function() {
+            t.fail('emitted error');
+            t.end();
+        })
+        .write(file);
+});
+
 test('write: should calculate relative path to source when #outputRoot is present', function(t) {
 
     var cases = [
@@ -490,7 +507,7 @@ test('write: should calculate relative path to source when #outputRoot is presen
         });
 
         var pipeline = sourcemaps.write(".", {
-            outputPath: current.outputPath
+            destPath: current.outputPath
         });    
 
         pipeline

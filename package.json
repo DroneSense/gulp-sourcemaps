@@ -1,12 +1,12 @@
 {
-  "name": "gulp-sourcemaps",
-  "version": "1.6.4",
+  "name": "@costar/gulp-sourcemaps",
+  "version": "1.6.5",
   "description": "Source map support for Gulp.js",
   "homepage": "http://github.com/floridoo/gulp-sourcemaps",
   "repository": "git://github.com/floridoo/gulp-sourcemaps.git",
   "main": "index.js",
   "scripts": {
-    "test": "jshint *.js test/*.js && faucet test/*.js",
+    "test": "jshint *.js test/*.js && npm run tap",
     "tap": "tape test/*.js",
     "cover": "istanbul cover --dir reports/coverage tape \"test/*.js\"",
     "coveralls": "istanbul cover tape \"test/*.js\" --report lcovonly && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
@@ -30,7 +30,6 @@
     "jshint": "^2.8.0",
     "tape": "^4.2.0",
     "istanbul": "^0.3.21",
-    "faucet": "0.0.1",
     "coveralls": "^2.11.4"
   },
   "files": [

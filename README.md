@@ -2,6 +2,8 @@
 
 * adds `destPath` to address relative path problems locating external sources
 * removes the default setting for `sourceRoot`
+* stop using this when 'destPath' is supported by the published version on npm of 'gulp-sourcemaps'
+
 
 ## gulp-sourcemaps  [![NPM version][npm-image]][npm-url] [![build status][travis-image]][travis-url] [![Test coverage][coveralls-image]][coveralls-url]
 
@@ -50,6 +52,29 @@ Example:
         .pipe(gulp.dest('dist'));
     });
 ```
+
+
+- `mapSources`
+
+  This option gives full control over the source paths. It takes a function that is called for every source and receives the default source path as a parameter.
+
+  Example:
+  ```javascript
+  gulp.task('javascript', function() {
+    var stream = gulp.src('src/**/*.js')
+      .pipe(sourcemaps.init())
+        .pipe(plugin1())
+        .pipe(plugin2())
+      .pipe(sourcemaps.write('../maps', {
+        mapSources: function(sourcePath) {
+          // source paths are prefixed with '../src/'
+          return '../src/' + sourcePath;
+        }
+      }))
+      .pipe(gulp.dest('public/scripts'));
+  });
+  ```
+
 
 #### Load existing source maps
 
@@ -102,6 +127,8 @@ Example:
     - inline source maps
     - source map files referenced by a `sourceMappingURL=` comment
     - source map files with the same name (plus .map) in the same directory
+
+
 
 - `debug`
   Set this to `true` to output debug messages (e.g. about missing source content).
