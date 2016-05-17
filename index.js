@@ -63,6 +63,7 @@ module.exports.init = function init(options) {
 
       // fix source paths and sourceContent for imported source map
       if (sourceMap) {
+
         sourceMap.sourcesContent = sourceMap.sourcesContent || [];
         sourceMap.sources.forEach(function(source, i) {
           if (source.match(urlRegex)) {
@@ -108,6 +109,7 @@ module.exports.init = function init(options) {
     }
 
     if (!sourceMap) {
+      
       // Make an empty source map
       sourceMap = {
         version : 3,
@@ -135,7 +137,7 @@ module.exports.init = function init(options) {
  *
  */
 module.exports.write = function write(outputPath, options) {
-  
+      
   if (options === undefined && Object.prototype.toString.call(outputPath) === '[object Object]') {
     options = outputPath;
     outputPath = undefined;
@@ -169,10 +171,12 @@ module.exports.write = function write(outputPath, options) {
     // fix paths if Windows style paths
     sourceMap.file = unixStylePath(file.relative);
 
+    
     if (options.mapSources && typeof options.mapSources === 'function') {
-      sourceMap.sources = sourceMap.sources.map(function(filePath) {
-        return options.mapSources(filePath);
-      });
+      sourceMap.sources = sourceMap.sources
+        .map(function(filePath) {
+          return options.mapSources(filePath);
+        });
     }
      
     var destPath;
@@ -187,12 +191,12 @@ module.exports.write = function write(outputPath, options) {
 
       sourceRootRelative = relativePathTo(unixStylePath(path.dirname(file.path)), destPath);
     }
-    
+
     sourceMap.sources = sourceMap.sources.map(function(filePath) {
       var sourcePath = filePath;
 
       if (destPath) {
-        sourcePath = path.join(sourceRootRelative, path.basename(file.path));
+        sourcePath = path.join(sourceRootRelative, path.basename(filePath));
       }
       
       return unixStylePath(sourcePath) 
